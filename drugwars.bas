@@ -1,0 +1,120 @@
+10 CLEAR
+20 RANDOMIZE
+30 DIM D$(6), P(6), H(6), L$(5)
+40 GOSUB 2000
+50 REM Game setup
+60 C = 2000 : B = 5500 : DAY = 1 : LOC = 1 : S = 100
+70 CLS
+80 PRINT "DRUG WARS"
+90 PRINT "Make $ in 30 days"
+100 PRINT "Pay loan $"; INT(B/100); "h"
+110 INPUT "GO"; Z$
+120 REM Main game loop
+130 GOSUB 1000
+140 CLS
+150 PRINT "D"; DAY; " $"; INT(C/100); "h"; " Sp"; S
+160 PRINT L$(LOC); " Ln$"; INT(B/100); "h"
+170 PRINT "Ck"; P(1); "["; H(1); "]Hr"; P(2); "["; H(2); "]"
+180 PRINT "Wd"; P(3); "["; H(3); "]Sp"; P(4); "["; H(4); "]"
+190 PRINT "Ac"; P(5); "["; H(5); "]Ld"; P(6); "["; H(6); "]"
+200 INPUT "B/S/J/Q"; A$
+210 IF A$ = "B" OR A$ = "b" THEN GOSUB 3000
+220 IF A$ = "S" OR A$ = "s" THEN GOSUB 4000
+230 IF A$ = "J" OR A$ = "j" THEN GOSUB 5000
+240 IF A$ = "Q" OR A$ = "q" THEN GOTO 9000
+250 GOTO 140
+1000 REM Generate prices for location
+1010 FOR I = 1 TO 6
+1020   P(I) = 0
+1030   IF INT(RND(1)*3) = 0 THEN GOTO 1060
+1040   P(I) = INT(RND(1)*50) + 5
+1050   P(I) = INT(P(I) / 5) * 5
+1060 NEXT I
+1070 REM Random events
+1080 IF INT(RND(1)*5) = 0 THEN GOSUB 6000
+1090 RETURN
+2000 REM Initialize data
+2010 D$(1) = "Coke" : D$(2) = "Hero"
+2020 D$(3) = "Weed" : D$(4) = "Speed"
+2030 D$(5) = "Acid" : D$(6) = "Lude"
+2040 L$(1) = "BRX" : L$(2) = "GHT"
+2050 L$(3) = "CNI" : L$(4) = "BKN"
+2060 L$(5) = "MHT"
+2070 FOR I = 1 TO 6 : H(I) = 0 : NEXT I
+2080 RETURN
+3000 REM Buy drugs
+3010 INPUT "Drug(1-6)"; D
+3020 IF D < 1 OR D > 6 THEN RETURN
+3030 IF P(D) = 0 THEN PRINT "None!" : WAIT 30 : RETURN
+3040 INPUT "Qty"; Q
+3050 IF Q <= 0 THEN RETURN
+3060 COST = Q * P(D) * 100
+3070 IF COST > C THEN PRINT "No $!" : WAIT 30 : RETURN
+3080 USED = 0
+3090 FOR I = 1 TO 6 : USED = USED + H(I) : NEXT I
+3100 IF USED + Q > 100 THEN PRINT "No sp!" : WAIT 30 : RETURN
+3110 C = C - COST
+3120 H(D) = H(D) + Q
+3130 RETURN
+4000 REM Sell drugs
+4010 INPUT "Drug(1-6)"; D
+4020 IF D < 1 OR D > 6 THEN RETURN
+4030 IF H(D) = 0 THEN PRINT "None!" : WAIT 30 : RETURN
+4040 IF P(D) = 0 THEN PRINT "No buy!" : WAIT 30 : RETURN
+4050 INPUT "Qty"; Q
+4060 IF Q <= 0 THEN RETURN
+4070 IF Q > H(D) THEN Q = H(D)
+4080 C = C + Q * P(D) * 100
+4090 H(D) = H(D) - Q
+4100 RETURN
+5000 REM Travel (Jet to new location)
+5010 CLS
+5020 FOR I = 1 TO 5
+5030   IF I <> LOC THEN PRINT I; ")"; L$(I);
+5040 NEXT I
+5050 PRINT
+5060 INPUT "Go"; W
+5070 IF W < 1 OR W > 5 OR W = LOC THEN RETURN
+5080 LOC = W
+5090 DAY = DAY + 1
+5100 REM Accrue loan interest daily
+5110 IF B > 0 THEN B = INT(B * 1.1)
+5120 IF DAY > 30 THEN GOTO 9000
+5130 RETURN
+6000 REM Random events
+6010 E = INT(RND(1)*10)
+6020 IF E = 0 THEN GOSUB 7000 : RETURN
+6030 IF E = 1 THEN GOSUB 8000 : RETURN
+6040 RETURN
+7000 REM Price spike event
+7010 DR = INT(RND(1)*6) + 1
+7020 IF P(DR) = 0 THEN RETURN
+7030 P(DR) = P(DR) * 4
+7040 CLS
+7050 PRINT D$(DR); " boom!"
+7060 PRINT "High prices!"
+7070 WAIT 60
+7080 RETURN
+8000 REM Police bust - lose random drug
+8010 FOR I = 1 TO 6
+8020   IF H(I) > 0 THEN DR = I : GOTO 8050
+8030 NEXT I
+8040 RETURN
+8050 LOST = INT(H(DR) / 2)
+8060 IF LOST = 0 THEN RETURN
+8070 H(DR) = H(DR) - LOST
+8080 CLS
+8090 PRINT "COPS!"
+8100 PRINT "Lost"; LOST; D$(DR)
+8110 WAIT 60
+8120 RETURN
+9000 REM End game
+9010 CLS
+9020 PRINT "GAME OVER"
+9030 PRINT "Day"; DAY
+9040 PRINT "$"; INT(C/100); "h"
+9050 PRINT "Loan$"; INT(B/100); "h"
+9060 NET = C - B
+9070 PRINT "Net$"; INT(NET/100); "h"
+9080 IF NET > 0 THEN PRINT "WIN!" ELSE PRINT "BROKE!"
+9090 END
