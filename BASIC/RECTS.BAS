@@ -1,0 +1,7 @@
+10 CLS : RANDOMIZE
+20 W=144 :H=48
+30 FOR I = 0 to ((H/2)-1)
+40 LINE (I,I)-((W-1)-I,(H-1)-I)
+50 NEXT I
+60 WHILE INKEY$ = "" GOTO 60
+
